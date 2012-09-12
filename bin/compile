@@ -79,6 +79,12 @@ set -e
 mkdir -p $BUILD_DIR/vendor/nginx/conf
 erb conf/nginx.conf.erb > $BUILD_DIR/vendor/nginx/conf/nginx.conf
 
+# create and watch logs
+mkdir -p $BUILD_DIR/vendor/nginx/logs
+touch $BUILD_DIR/vendor/nginx/logs/access_log $BUILD_DIR/vendor/nginx/logs/error_log
+
+(tail -q -F -n 0 $BUILD_DIR/vendor/nginx/logs/access_log $BUILD_DIR/vendor/nginx/logs/error_log &)
+
 # boot
 vendor/nginx/sbin/nginx
 EOF
