@@ -1,0 +1,97 @@
+#!/bin/bash
+#
+# bin/compile BUILD_DIR CACHE_DIR
+
+set -e
+
+BUILD_DIR=$1
+CACHE_DIR=$2
+
+PCRE_VERSION="8.31"
+NGINX_VERSION="1.2.3"
+
+PCRE_BINARY="ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-$PCRE_VERSION.tar.gz"
+NGINX_BINARY="http://nginx.org/download/nginx-$NGINX_VERSION.tar.gz"
+
+function main() {
+  create_directories
+
+  download_pcre
+  download_nginx
+
+  compile_nginx
+
+  generate_run_script
+}
+
+function create_directories() {
+  mkdir -p $BUILD_DIR
+  mkdir -p $CACHE_DIR
+}
+
+function download_pcre() {
+  echo "Downloading PCRE $PCRE_VERSION" | arrow
+
+  cd $CACHE_DIR
+  curl -# -o pcre-$PCRE_VERSION.tar.gz $PCRE_BINARY | indent
+
+  echo 'Extracting PCRE' | arrow
+
+  tar xvf pcre-$PCRE_VERSION.tar.gz | indent
+}
+
+function download_nginx() {
+  echo "Downloading nginx $NGINX_VERSION" | arrow
+
+  cd $CACHE_DIR
+  curl -# -o nginx-$NGINX_VERSION.tar.gz $NGINX_BINARY | indent
+
+  echo 'Extracting nginx' | arrow
+
+  tar xvf nginx-$NGINX_VERSION.tar.gz | indent
+}
+
+function compile_nginx() {
+  echo 'Configuring nginx' | arrow
+
+  cd $CACHE_DIR/nginx-$NGINX_VERSION
+  ./configure --prefix=$BUILD_DIR/vendor/nginx --with-pcre=$CACHE_DIR/pcre-$PCRE_VERSION 2>&1 | indent
+
+  echo 'Compiling nginx' | arrow
+
+  make 2>&1 | indent
+
+  echo 'Installing nginx' | arrow
+
+  make install 2>&1 | indent
+}
+
+function generate_run_script() {
+  mkdir $BUILD_DIR/bin
+
+  cat > $BUILD_DIR/bin/nginx << EOF
+#!/bin/bash
+
+# fail-fast
+set -e
+
+# build configuration
+mkdir -p $BUILD_DIR/vendor/nginx/conf
+erb conf/nginx.conf.erb > $BUILD_DIR/vendor/nginx/conf/nginx.conf
+
+# boot
+vendor/nginx/sbin/nginx
+EOF
+
+  chmod +x $BUILD_DIR/bin/nginx
+}
+
+function arrow() {
+  sed -u "s/^/-----> /"
+}
+
+function indent() {
+  sed -u "s/^/       /"
+}
+
+main

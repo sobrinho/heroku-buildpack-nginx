@@ -1,0 +1,12 @@
+#!/bin/bash
+#
+# bin/detect BUILD_DIR
+
+BUILD_DIR=$1
+
+if [ -f $BUILD_DIR/conf/nginx.conf.erb ]; then
+  echo 'nginx'
+  exit 0
+else
+  exit 1
+fi
