@@ -55,7 +55,7 @@ function compile_nginx() {
   echo 'Configuring nginx' | arrow
 
   cd $CACHE_DIR/nginx-$NGINX_VERSION
-  ./configure --prefix=$BUILD_DIR/vendor/nginx --with-pcre=$CACHE_DIR/pcre-$PCRE_VERSION 2>&1 | indent
+  ./configure --prefix=$BUILD_DIR/vendor/nginx --with-pcre=$CACHE_DIR/pcre-$PCRE_VERSION --with-http_ssl_module 2>&1 | indent
 
   echo 'Compiling nginx' | arrow
 
