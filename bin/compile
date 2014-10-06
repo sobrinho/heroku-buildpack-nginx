@@ -7,8 +7,8 @@ set -e
 BUILD_DIR=$1
 CACHE_DIR=$2
 
-PCRE_VERSION="8.31"
-NGINX_VERSION="1.2.3"
+PCRE_VERSION="8.36"
+NGINX_VERSION="1.6.2"
 
 PCRE_BINARY="ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-$PCRE_VERSION.tar.gz"
 NGINX_BINARY="http://nginx.org/download/nginx-$NGINX_VERSION.tar.gz"
